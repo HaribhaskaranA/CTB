@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Application Status | CONNECT TO BUILD{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-2 fw-semibold">
+                    <i class="bi bi-shield-check me-1"></i> Worker Verification Portal
+                </span>
+                <h2 class="fw-bold" style="color: var(--secondary);">Track Worker Application</h2>
+                <p class="text-muted">Enter your Application Tracking ID to check whether your profile has been approved and verified by the administration.</p>
+            </div>
+
+            <!-- Tracking ID Form -->
+            <div class="card p-4 shadow-sm border-0 rounded-4 mb-4">
+                <form method="POST" action="{% url 'worker_track_status' %}">
+                    {% csrf_token %}
+                    <label class="form-label fw-bold small text-uppercase text-muted" for="trackingIdInput">Application Tracking ID</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="tracking_id" id="trackingIdInput" 
+                               class="form-control border-start-0" 
+                               placeholder="e.g. TRK-TN-1A2B3" 
+                               value="{{ tracking_id|default:'' }}" 
+                               required autofocus>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            Check Status
+                        </button>
+                    </div>
+                    <div class="form-text mt-2 small text-muted">
+                        Tracking ID format: <code>TRK-{STATE}-{CODE}</code> (received upon worker registration).
+                    </div>
+                </form>
+            </div>
+
+            {% if error %}
+            <!-- Error Alert -->
+            <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center gap-3">
+                <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0 text-danger"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Application Not Found</h6>
+                    <p class="mb-0 small">{{ error }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if worker %}
+            <!-- Result Card -->
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <!-- Status Banner -->
+                {% if is_verified %}
+                <div class="p-4 text-white text-center" style="background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);">
+                    <div class="bg-white bg-opacity-25 rounded-circle d-inline-flex p-3 mb-2">
+                        <i class="bi bi-shield-fill-check fs-1 text-white"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Application Verified & Approved!</h3>
+                    <p class="mb-0 text-white-50">Your profile has been verified in the system. Your login credentials are now active.</p>
+                </div>
+                {% elif worker.verification_status == 'REJECTED' %}
+                <div class="p-4 text-white text-center bg-danger">
+                    <div class="bg-white bg-opacity-25 rounded-circle d-inline-flex p-3 mb-2">
+                        <i class="bi bi-x-circle-fill fs-1 text-white"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Application Rejected</h3>
+                    <p class="mb-0 text-white-50">Your application could not be verified by the administrator.</p>
+                </div>
+                {% elif worker.verification_status == 'ADDITIONAL_INFO' %}
+                <div class="p-4 text-white text-center bg-warning text-dark">
+                    <div class="bg-dark bg-opacity-10 rounded-circle d-inline-flex p-3 mb-2">
+                        <i class="bi bi-info-circle-fill fs-1 text-dark"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1 text-dark">Additional Information Required</h3>
+                    <p class="mb-0 text-muted">The administrator has requested additional details before approval.</p>
+                </div>
+                {% else %}
+                <div class="p-4 text-dark text-center" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);">
+                    <div class="bg-warning bg-opacity-25 rounded-circle d-inline-flex p-3 mb-2">
+                        <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1 text-dark">Application Under Review</h3>
+                    <p class="mb-0 text-muted">Your application is currently pending admin verification.</p>
+                </div>
+                {% endif %}
+
+                <!-- Details Body -->
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-3 mb-4 pb-3 border-bottom">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Applicant Name</span>
+                            <span class="fw-bold fs-5 text-dark">{{ worker.full_name }}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Profession</span>
+                            <span class="badge bg-primary px-3 py-2 rounded-pill">{{ worker.get_profession_display }}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Location</span>
+                            <span class="fw-semibold text-dark"><i class="bi bi-geo-alt text-primary"></i> {{ worker.city }}, {{ worker.state }}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Submitted On</span>
+                            <span class="text-dark">{{ worker.created_at|date:"d M Y, h:i A" }}</span>
+                        </div>
+                    </div>
+
+                    {% if is_verified %}
+                    <!-- VERIFIED STATE: REVEAL LOGIN ID -->
+                    <div class="p-4 bg-success bg-opacity-10 rounded-4 border border-success border-opacity-25 text-center mb-4">
+                        <p class="text-success fw-bold small text-uppercase mb-2">
+                            <i class="bi bi-check-circle-fill me-1"></i> Your Official Worker Login ID
+                        </p>
+                        <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                            <h2 class="fw-bold text-success mb-0 bg-white px-4 py-2 rounded-3 shadow-sm border border-success user-select-all" id="workerLoginIdDisplay">{{ worker_login_id }}</h2>
+                            <button class="btn btn-outline-success btn-lg" onclick="copyLoginId()" title="Copy Login ID">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            Use this <strong>Worker Login ID</strong> (<code>{{ worker_login_id }}</code>) and your registered password to sign in.
+                        </p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-success btn-lg fw-bold py-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Proceed to Login
+                        </a>
+                    </div>
+
+                    {% else %}
+                    <!-- PENDING / UNDER REVIEW STATE: CONCEAL LOGIN ID -->
+                    <div class="p-4 bg-light rounded-4 border text-center mb-4">
+                        <div class="text-muted mb-2">
+                            <i class="bi bi-lock-fill fs-2 text-warning d-block mb-2"></i>
+                            <span class="fw-bold text-dark d-block">Worker Login ID is Locked</span>
+                        </div>
+                        <p class="text-muted small mb-0 px-md-4">
+                            Your Login ID will be automatically generated and displayed here once the administrator verifies your application in the portal. Please refresh or check this page later.
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'worker_track_status' %}?tracking_id={{ tracking_id }}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Status
+                        </a>
+                        <a href="{% url 'landing' %}" class="text-muted text-decoration-none small">
+                            Return to Homepage
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Helpful Guidance Card -->
+            <div class="card border-0 bg-light p-4 rounded-4 text-muted small">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle text-primary me-2"></i>How does verification work?</h6>
+                <p class="mb-2">1. <strong>Application Review:</strong> Our administrative team reviews your submitted certificates, trade credentials, and location details.</p>
+                <p class="mb-2">2. <strong>Admin Approval in Supabase:</strong> Once the admin marks your profile as <code>VERIFIED</code>, this status updates immediately.</p>
+                <p class="mb-0">3. <strong>Access Granted:</strong> You will receive your official <code>WK-TN-XXXXX</code> Login ID and can log in to accept work quotes and project contracts.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyLoginId() {
+        const el = document.getElementById('workerLoginIdDisplay');
+        if (!el) return;
+        const text = el.innerText.trim();
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Worker Login ID copied to clipboard: " + text);
+        });
+    }
+</script>
+{% endblock %}

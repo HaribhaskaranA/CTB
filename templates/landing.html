@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONNECT TO BUILD - Digital Construction Ecosystem</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E86329;
+            --secondary: #1A2744;
+            --bg: #F8FAFC;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); }
+        .text-primary { color: var(--primary) !important; }
+        .bg-secondary-dark { background-color: var(--secondary); }
+        .hero {
+            background: linear-gradient(135deg, rgba(26,39,68,0.9) 0%, rgba(45,74,122,0.85) 100%),
+                        url('https://images.unsplash.com/photo-1541888081198-b570081d0be3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            color: white;
+            padding: 120px 0;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+        }
+        .btn-primary { background-color: var(--primary); border-color: var(--primary); }
+        .btn-primary:hover { background-color: #d15622; border-color: #d15622; }
+        .btn-outline-light:hover { color: var(--secondary); }
+        .feature-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease; }
+        .card:hover { transform: translateY(-5px); }
+        .step-circle {
+            width: 50px; height: 50px; background: var(--primary); color: white;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white fixed-top shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-house-door-fill text-primary fs-3 me-2"></i>
+                <span class="fw-bold" style="color: var(--secondary);">CONNECT TO BUILD</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="ms-auto d-flex gap-2 flex-wrap mt-3 mt-lg-0">
+                    <a href="/register/owner/" class="btn btn-outline-secondary">House Owner</a>
+                    <a href="/register/worker/" class="btn btn-outline-secondary">Worker / Service Provider</a>
+                    <a href="/worker/track-status/" class="btn btn-outline-primary"><i class="bi bi-geo-alt"></i> Track Status</a>
+                    <a href="/login/" class="btn btn-outline-dark ms-lg-2">Login</a>
+                    <a href="/register/owner/" class="btn btn-primary">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero text-center mt-5">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">CONNECT TO BUILD</h1>
+            <p class="lead fs-4 mb-5 mx-auto" style="max-width: 700px;">
+                A trusted digital ecosystem for home construction and renovation.
+                Connecting house owners with verified professionals seamlessly.
+            </p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="/register/owner/" class="btn btn-primary btn-lg px-4 py-3 fw-bold">I am a House Owner</a>
+                <a href="/register/worker/" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">I am a Worker</a>
+                <a href="/worker/track-status/" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold"><i class="bi bi-geo-alt"></i> Track Status</a>
+                <a href="/login/" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">Login</a>
+                <a href="/register/owner/" class="btn btn-outline-warning btn-lg px-4 py-3 fw-bold"
+                   style="color: var(--primary); border-color: var(--primary);">Register</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5 bg-light">
+        <div class="container py-5">
+            <h2 class="text-center fw-bold mb-5" style="color: var(--secondary);">Why Choose Connect To Build?</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-patch-check feature-icon"></i>
+                        <h4 class="fw-bold">Verified Professionals</h4>
+                        <p class="text-muted">All workers and service providers undergo strict identity and skill verification.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-shield-lock feature-icon"></i>
+                        <h4 class="fw-bold">Secure Identity</h4>
+                        <p class="text-muted">Digital Work Passports keep identities secure without exposing sensitive details.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-eye-slash feature-icon"></i>
+                        <h4 class="fw-bold">Privacy Protection</h4>
+                        <p class="text-muted">Contact details are hidden until you finalize an agreement.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-kanban feature-icon"></i>
+                        <h4 class="fw-bold">Project Management</h4>
+                        <p class="text-muted">Track progress, milestones, and daily updates in real-time.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-map feature-icon"></i>
+                        <h4 class="fw-bold">Construction Roadmap</h4>
+                        <p class="text-muted">Clear, step-by-step guidance from land acquisition to housewarming.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="bi bi-robot feature-icon"></i>
+                        <h4 class="fw-bold">AI-Assisted Planning</h4>
+                        <p class="text-muted">Describe your dream home in plain language and let AI build your requirements.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center fw-bold mb-5" style="color: var(--secondary);">How It Works</h2>
+            <div class="row g-5">
+                <!-- For Owners -->
+                <div class="col-lg-6">
+                    <h3 class="text-center mb-4 text-primary">For House Owners</h3>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="text-center">
+                            <div class="step-circle">1</div>
+                            <h5 class="fw-bold">Post a Project</h5>
+                            <p class="text-muted">Create a project using our AI assistant or manual forms.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-circle">2</div>
+                            <h5 class="fw-bold">Review &amp; Hire</h5>
+                            <p class="text-muted">Review quotes from verified professionals and assign work.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-circle">3</div>
+                            <h5 class="fw-bold">Track &amp; Pay</h5>
+                            <p class="text-muted">Monitor milestones, approve photo evidence, and track payments safely.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- For Workers -->
+                <div class="col-lg-6">
+                    <h3 class="text-center mb-4 text-primary">For Workers</h3>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="text-center">
+                            <div class="step-circle">1</div>
+                            <h5 class="fw-bold">Create Passport</h5>
+                            <p class="text-muted">Register and get your skills/documents verified by admins.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-circle">2</div>
+                            <h5 class="fw-bold">Find Work</h5>
+                            <p class="text-muted">Browse nearby projects matching your skills and submit quotes.</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-circle">3</div>
+                            <h5 class="fw-bold">Build Reputation</h5>
+                            <p class="text-muted">Complete milestones, upload evidence, and earn high ratings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 bg-secondary-dark text-white text-center">
+        <div class="container py-4">
+            <h2 class="fw-bold mb-4">Ready to build your dream home?</h2>
+            <p class="lead mb-4">Join thousands of verified professionals and happy homeowners today.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/register/owner/" class="btn btn-primary btn-lg">Register as Owner</a>
+                <a href="/register/worker/" class="btn btn-outline-light btn-lg">Register as Worker</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white-50 py-4 text-center">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 CONNECT TO BUILD. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

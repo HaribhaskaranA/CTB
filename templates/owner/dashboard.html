@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Dashboard | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1" style="color: var(--secondary);">Welcome, {{ request.user.full_name|default:"Owner" }}</h2>
+        <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">ID: {{ request.user.user_id|default:"HO-TN-8F42K" }}</span>
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card p-3 bg-light text-center border-0 shadow-sm">
+            <h5 class="fw-bold text-dark mb-0">{{ total_projects|default:0 }}</h5>
+            <small class="text-muted">Total Projects</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 bg-light text-center border-0 shadow-sm">
+            <h5 class="fw-bold text-primary mb-0">{{ active_projects|default:0 }}</h5>
+            <small class="text-muted">Active Projects</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 bg-light text-center border-0 shadow-sm">
+            <h5 class="fw-bold text-success mb-0">{{ verified_workers.count|default:0 }}</h5>
+            <small class="text-muted">Verified Pros</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card p-3 bg-light text-center border-0 shadow-sm">
+            <h5 class="fw-bold text-warning mb-0">{{ pending_payments|default:0 }}</h5>
+            <small class="text-muted">Pending Payments</small>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Grid (2x4 conceptually, using row cols) -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4 mb-5">
+    <div class="col">
+        <a href="{% url 'project_new' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 bg-primary text-white dashboard-card">
+                <i class="bi bi-plus-circle fs-1 mb-2"></i>
+                <h5 class="fw-bold">New Project</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'project_list' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card" style="background-color: var(--secondary); color: white;">
+                <i class="bi bi-briefcase fs-1 mb-2"></i>
+                <h5 class="fw-bold">My Projects</h5>
+                <span class="badge bg-light text-dark position-absolute top-0 end-0 m-3">{{ total_projects|default:0 }}</span>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'worker_search' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white" style="background-color: #0d9488;">
+                <i class="bi bi-people fs-1 mb-2"></i>
+                <h5 class="fw-bold">Find Workers</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'worker_search' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white bg-success">
+                <i class="bi bi-geo-alt fs-1 mb-2"></i>
+                <h5 class="fw-bold">Nearby Pros</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'roadmap' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white" style="background-color: #3b82f6;">
+                <i class="bi bi-bar-chart-steps fs-1 mb-2"></i>
+                <h5 class="fw-bold">Progress</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'payment_list' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white" style="background-color: #8b5cf6;">
+                <i class="bi bi-currency-rupee fs-1 mb-2"></i>
+                <h5 class="fw-bold">Payments</h5>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'complaint_list' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white bg-danger">
+                <i class="bi bi-exclamation-octagon fs-1 mb-2"></i>
+                <h5 class="fw-bold">Complaints</h5>
+                <span class="badge bg-light text-danger position-absolute top-0 end-0 m-3">{{ open_complaints|default:0 }}</span>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'complaint_list' %}" class="text-decoration-none">
+            <div class="card h-100 p-4 text-center border-0 dashboard-card text-white bg-warning">
+                <i class="bi bi-bell fs-1 mb-2"></i>
+                <h5 class="fw-bold">Notifications</h5>
+                <span class="badge bg-danger position-absolute top-0 end-0 m-3">1</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Recommended Verified Workers Section -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="fw-bold mb-1" style="color: var(--secondary);">Recommended Verified Professionals</h4>
+        <p class="text-muted small mb-0">Directly registered and verified trade specialists ready for your project.</p>
+    </div>
+    <a href="{% url 'worker_search' %}" class="btn btn-sm btn-outline-primary fw-semibold">
+        View All Workers <i class="bi bi-arrow-right"></i>
+    </a>
+</div>
+
+{% if verified_workers %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
+    {% for worker in verified_workers %}
+    <div class="col">
+        <div class="card h-100 border-0 shadow-sm position-relative rounded-4">
+            <div class="card-body p-4 text-center">
+                <div class="position-absolute top-0 end-0 m-3">
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 small">
+                        <i class="bi bi-shield-check"></i> Verified
+                    </span>
+                </div>
+                
+                <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold fs-4 mx-auto mb-3" style="width: 68px; height: 68px;">
+                    {{ worker.full_name|slice:":2"|upper }}
+                </div>
+                
+                <h5 class="fw-bold mb-1 text-dark">{{ worker.full_name }}</h5>
+                <div class="text-muted small mb-2">ID: {{ worker.user.user_id }}</div>
+                
+                <span class="badge bg-primary mb-3">{{ worker.get_profession_display }}</span>
+                
+                <div class="d-flex justify-content-center gap-3 mb-3 text-muted small">
+                    <div><i class="bi bi-star-fill text-warning"></i> {{ worker.overall_rating|default:"5.0" }} ({{ worker.total_reviews|default:"0" }})</div>
+                    <div><i class="bi bi-briefcase"></i> {{ worker.years_experience }} Yrs Exp</div>
+                </div>
+                
+                <p class="small mb-3 text-muted"><i class="bi bi-geo-alt text-primary"></i> {{ worker.city }}{% if worker.area %}, {{ worker.area }}{% endif %}</p>
+                
+                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-3 mb-3">
+                    <span class="small fw-bold">₹ {{ worker.daily_rate|floatformat:0 }}/day</span>
+                    {% if worker.availability %}
+                    <span class="text-success small fw-bold"><i class="bi bi-circle-fill small" style="font-size: 8px;"></i> Available</span>
+                    {% else %}
+                    <span class="text-secondary small fw-bold">Busy</span>
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'worker_public_profile' worker.pk %}" class="btn btn-outline-secondary btn-sm flex-fill">View Profile</a>
+                    <a href="{% url 'worker_public_profile' worker.pk %}" class="btn btn-primary btn-sm flex-fill">Request Quote</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card p-4 text-center border-0 shadow-sm bg-light rounded-4 mb-5">
+    <div class="py-3">
+        <i class="bi bi-person-badge fs-1 text-muted d-block mb-2"></i>
+        <h6 class="fw-bold text-dark mb-1">No Verified Workers Yet</h6>
+        <p class="text-muted small mb-0">Registered workers verified in Supabase will automatically appear here as recommendations for your home projects.</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Projects -->
+<h4 class="fw-bold mb-3" style="color: var(--secondary);">Recent Projects</h4>
+<div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Project ID</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Current Stage</th>
+                    <th style="min-width: 150px;">Progress</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if projects %}
+                    {% for prj in projects %}
+                    <tr>
+                        <td class="fw-bold text-primary">{{ prj.project_id }}</td>
+                        <td>{{ prj.title }}</td>
+                        <td>
+                            {% if prj.status == 'ACTIVE' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif prj.status == 'COMPLETED' %}
+                            <span class="badge bg-secondary">Completed</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">{{ prj.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ prj.current_stage|default:"Planning" }}</td>
+                        <td>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-success" style="width: {{ prj.overall_progress|default:10 }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ prj.overall_progress|default:10 }}%</small>
+                        </td>
+                        <td>
+                            <a href="{% url 'project_roadmap' prj.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-folder2-open d-block fs-3 mb-1"></i>
+                            No projects yet. Click <a href="{% url 'project_new' %}" class="fw-bold text-primary">New Project</a> to get started!
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-card { transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; }
+    .dashboard-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+</style>
+{% endblock %}

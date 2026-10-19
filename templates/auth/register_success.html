@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Registration Successful | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card p-5 shadow border-0">
+                <div class="mb-4">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-check-lg" style="font-size: 3rem;"></i>
+                    </div>
+                </div>
+                
+                <h2 class="fw-bold mb-3" style="color: var(--secondary);">Registration Successful!</h2>
+                <p class="text-muted fs-5 mb-4">Welcome to Connect To Build. Your digital profile has been created.</p>
+                
+                <div class="p-4 bg-light rounded-3 border mb-4">
+                    <p class="text-muted mb-2">Your Unique Login ID is:</p>
+                    <div class="d-flex align-items-center justify-content-center gap-3">
+                        <h3 class="fw-bold text-primary mb-0 bg-white px-4 py-2 rounded shadow-sm border border-primary user-select-all" id="userIdDisplay">{{ new_user_id|default:"HO-TN-8F42K" }}</h3>
+                        <button class="btn btn-outline-secondary" onclick="copyId()" title="Copy to clipboard">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                    <p class="text-danger small mt-3 fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> Please save this ID — you will need it to login.</p>
+                </div>
+                
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100 py-3 fw-bold">Proceed to Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyId() {
+        const idText = document.getElementById('userIdDisplay').innerText;
+        navigator.clipboard.writeText(idText).then(() => {
+            alert("ID copied to clipboard!");
+        });
+    }
+</script>
+{% endblock %}

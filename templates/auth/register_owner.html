@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+
+{% block title %}Owner Registration | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card p-4 p-md-5">
+                <h3 class="fw-bold mb-4" style="color: var(--secondary);">Register as House Owner</h3>
+
+                {% if errors.general %}
+                <div class="alert alert-danger">{{ errors.general }}</div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'register_owner' %}" id="regForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">1. Personal Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ data.full_name|default:'' }}" required>
+                            {% if errors.full_name %}<div class="text-danger small mt-1">{{ errors.full_name }}</div>{% endif %}
+                        </div>
+
+                        {# ── Phone Number + OTP Verification ── #}
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">+91</span>
+                                <input type="tel" name="phone" id="phoneInput"
+                                       class="form-control" pattern="[0-9]{10}"
+                                       placeholder="10-digit number"
+                                       value="{{ data.phone|default:'' }}"
+                                       required>
+                                <button type="button" class="btn btn-outline-primary" id="sendOtpBtn"
+                                        onclick="sendOTP()">Send OTP</button>
+                            </div>
+                            {# Status message area — always visible below phone number #}
+                            <div class="mt-1">
+                                <small id="otpMsg" class="d-block text-muted"></small>
+                            </div>
+
+                            {# OTP entry — shown after Send OTP #}
+                            <div id="otpSection" class="mt-2 d-none">
+                                <div class="input-group">
+                                    <input type="text" id="otpInput" class="form-control"
+                                           placeholder="Enter 6-digit OTP" maxlength="6"
+                                           pattern="[0-9]{6}" inputmode="numeric">
+                                    <button type="button" class="btn btn-success" onclick="verifyOTP()">
+                                        Verify OTP
+                                    </button>
+                                </div>
+                                <div class="d-flex justify-content-end mt-1">
+                                    <small><button type="button" class="btn btn-link btn-sm p-0 text-muted"
+                                                   id="resendBtn" onclick="sendOTP(true)" style="display:none;">
+                                        Resend OTP</button></small>
+                                </div>
+                            </div>
+
+                            {# Verification badge — shown after successful verify #}
+                            <div id="verifiedBadge" class="mt-2 d-none">
+                                <span class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Phone number verified
+                                </span>
+                            </div>
+
+                            {# Hidden field so backend knows which phone was submitted #}
+                            <input type="hidden" id="phoneVerifiedHidden" name="phone_verified_client" value="0">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address (Optional)</label>
+                            <input type="email" name="email" class="form-control" value="{{ data.email|default:'' }}">
+                            {% if errors.email %}<div class="text-danger small mt-1">{{ errors.email }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Preferred Language</label>
+                            <select name="language" class="form-select">
+                                <option value="English" {% if data.language == 'English' %}selected{% endif %}>English</option>
+                                <option value="Tamil"   {% if data.language == 'Tamil'   %}selected{% endif %}>Tamil</option>
+                                <option value="Telugu"  {% if data.language == 'Telugu'  %}selected{% endif %}>Telugu</option>
+                                <option value="Kannada" {% if data.language == 'Kannada' %}selected{% endif %}>Kannada</option>
+                                <option value="Malayalam" {% if data.language == 'Malayalam' %}selected{% endif %}>Malayalam</option>
+                                <option value="Hindi"   {% if data.language == 'Hindi'   %}selected{% endif %}>Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">2. Location</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">State</label>
+                            <select name="state" class="form-select" required>
+                                <option value="">Select State</option>
+                                <option value="TN" {% if data.state == 'TN' %}selected{% endif %}>Tamil Nadu</option>
+                                <option value="KA" {% if data.state == 'KA' %}selected{% endif %}>Karnataka</option>
+                                <option value="AP" {% if data.state == 'AP' %}selected{% endif %}>Andhra Pradesh</option>
+                                <option value="KL" {% if data.state == 'KL' %}selected{% endif %}>Kerala</option>
+                                <option value="MH" {% if data.state == 'MH' %}selected{% endif %}>Maharashtra</option>
+                                <option value="DL" {% if data.state == 'DL' %}selected{% endif %}>Delhi</option>
+                                <option value="GJ" {% if data.state == 'GJ' %}selected{% endif %}>Gujarat</option>
+                                <option value="RJ" {% if data.state == 'RJ' %}selected{% endif %}>Rajasthan</option>
+                                <option value="UP" {% if data.state == 'UP' %}selected{% endif %}>Uttar Pradesh</option>
+                                <option value="WB" {% if data.state == 'WB' %}selected{% endif %}>West Bengal</option>
+                            </select>
+                            {% if errors.state %}<div class="text-danger small mt-1">{{ errors.state }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" class="form-control" value="{{ data.city|default:'' }}" required>
+                            {% if errors.city %}<div class="text-danger small mt-1">{{ errors.city }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Area/Locality</label>
+                            <input type="text" name="area" class="form-control" value="{{ data.area|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">3. Address</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Full Address</label>
+                        <textarea name="address" class="form-control" rows="3" required>{{ data.address|default:'' }}</textarea>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">4. Government ID (Optional)</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Identity Document Type</label>
+                            <select name="id_type" class="form-select" id="idTypeSelect">
+                                <option value="">Select Document Type</option>
+                                <option value="Aadhaar">Aadhaar Card</option>
+                                <option value="PAN Card">PAN Card</option>
+                                <option value="Voter ID">Voter ID</option>
+                                <option value="Driving License">Driving Licence</option>
+                                <option value="Passport">Passport</option>
+                                <option value="Other">Other Government ID</option>
+                            </select>
+                            <div class="form-text text-muted mt-1">
+                                <i class="bi bi-shield-check text-success"></i>
+                                We store only the document type for verification — the document number is NOT stored.
+                                DO NOT enter Aadhaar number.
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="docUploadSection" style="display:none;">
+                            <label class="form-label">Upload Document <span class="text-muted small">(JPG/PNG/PDF, max 5 MB)</span></label>
+                            <input type="file" name="id_document" id="docFileInput"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.pdf">
+                            {% if errors.id_document %}
+                            <div class="text-danger small mt-1">{{ errors.id_document }}</div>
+                            {% endif %}
+                            <div id="docFileMsg" class="form-text mt-1"></div>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">5. Account Security</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="pwd" class="form-control" minlength="8" required>
+                            {% if errors.password %}<div class="text-danger small mt-1">{{ errors.password }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" id="cpwd" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                            Register as House Owner
+                        </button>
+                        <div id="submitBlockMsg" class="text-danger text-center mt-2 small d-none">
+                            Please verify your phone number before registering.
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card p-4 bg-light h-100 border-0 shadow-sm">
+                <h4 class="fw-bold mb-4" style="color: var(--secondary);">Why register as House Owner?</h4>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>Post your construction requirements easily</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>Hire verified workers and professionals</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>Track project milestones transparently</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>Keep your contact details private until assignment</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>Use AI to estimate costs and timelines</li>
+                </ul>
+                <div class="p-3 bg-white rounded border border-warning text-center mt-auto">
+                    <p class="mb-1 text-muted small">Your unique ID will look like:</p>
+                    <h5 class="fw-bold text-primary mb-0">HO-TN-8F42K</h5>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-muted mb-2">Already have an account?</p>
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 mb-2">Login</a>
+                    <a href="{% url 'register_worker' %}" class="text-decoration-none small text-muted d-block mt-2">I am a Worker instead</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ─── CSRF helper ─────────────────────────────────────────────────────────────
+function getCsrfToken() {
+    const input = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (input && input.value) return input.value;
+    const v = document.cookie.match('(^|;) ?csrftoken=([^;]*)(;|$)');
+    return v ? v[2] : '';
+}
+
+// ─── Phone / OTP state ───────────────────────────────────────────────────────
+let phoneVerified = false;
+let resendTimer   = null;
+
+function setOtpMsg(msg, cls) {
+    const el = document.getElementById('otpMsg');
+    el.textContent = msg;
+    el.className = 'small d-block ' + (cls || 'text-muted');
+}
+
+function startResendCooldown(seconds) {
+    const btn = document.getElementById('resendBtn');
+    btn.style.display = 'none';
+    let remaining = seconds;
+    if (resendTimer) clearInterval(resendTimer);
+    resendTimer = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(resendTimer);
+            btn.style.display = 'inline';
+        }
+    }, 1000);
+}
+
+function sendOTP(isResend) {
+    const phone = document.getElementById('phoneInput').value.trim();
+    if (!phone || phone.length !== 10 || !/^\d{10}$/.test(phone)) {
+        alert('Please enter a valid 10-digit phone number.');
+        return;
+    }
+
+    // Reset verification state if phone changed
+    if (phoneVerified) {
+        phoneVerified = false;
+        document.getElementById('verifiedBadge').classList.add('d-none');
+        document.getElementById('phoneVerifiedHidden').value = '0';
+    }
+
+    const btn = document.getElementById('sendOtpBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    setOtpMsg('Sending OTP to +91 ' + phone + '…', 'text-muted');
+
+    const csrf = getCsrfToken();
+    fetch("{% url 'register_owner_send_otp' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'phone=' + encodeURIComponent(phone) + '&csrfmiddlewaretoken=' + encodeURIComponent(csrf),
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.textContent = 'Resend OTP';
+        if (data.success) {
+            document.getElementById('otpSection').classList.remove('d-none');
+            document.getElementById('otpInput').focus();
+            startResendCooldown(60);
+            if (data.demo_otp) {
+                setOtpMsg(data.message, 'text-warning fw-bold');
+                document.getElementById('otpInput').value = data.demo_otp;
+            } else {
+                setOtpMsg(data.message || 'OTP sent! Please check your SMS.', 'text-success');
+            }
+        } else {
+            setOtpMsg(data.error || 'Failed to send OTP.', 'text-danger');
+            btn.textContent = 'Send OTP';
+        }
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Send OTP';
+        setOtpMsg('Network error. Please try again.', 'text-danger');
+    });
+}
+
+function verifyOTP() {
+    const code  = document.getElementById('otpInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
+
+    if (!code || code.length !== 6 || !/^\d{6}$/.test(code)) {
+        setOtpMsg('Please enter the 6-digit OTP.', 'text-danger');
+        return;
+    }
+
+    setOtpMsg('Verifying OTP…', 'text-muted');
+
+    const csrf = getCsrfToken();
+    fetch("{% url 'register_owner_verify_otp' %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'otp_code=' + encodeURIComponent(code) + '&csrfmiddlewaretoken=' + encodeURIComponent(csrf),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            phoneVerified = true;
+            document.getElementById('phoneVerifiedHidden').value = '1';
+            document.getElementById('otpSection').classList.add('d-none');
+            document.getElementById('verifiedBadge').classList.remove('d-none');
+            document.getElementById('phoneInput').readOnly = true;
+            document.getElementById('sendOtpBtn').disabled = true;
+            setOtpMsg('✓ Phone verified successfully', 'text-success fw-bold');
+            if (resendTimer) clearInterval(resendTimer);
+        } else {
+            setOtpMsg(data.error || 'Verification failed.', 'text-danger');
+        }
+    })
+    .catch(function() {
+        setOtpMsg('Network error during verification. Please try again.', 'text-danger');
+    });
+}
+
+// ─── ID type → show/hide document upload ─────────────────────────────────────
+document.getElementById('idTypeSelect').addEventListener('change', function() {
+    const section = document.getElementById('docUploadSection');
+    if (this.value) {
+        section.style.display = 'block';
+    } else {
+        section.style.display = 'none';
+        document.getElementById('docFileInput').value = '';
+    }
+});
+
+// File size/type validation on client side (also validated server-side)
+document.getElementById('docFileInput').addEventListener('change', function() {
+    const msg = document.getElementById('docFileMsg');
+    const file = this.files[0];
+    if (!file) { msg.textContent = ''; return; }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+        msg.textContent = 'Invalid file type. Allowed: JPG, PNG, PDF.';
+        msg.className = 'form-text text-danger';
+        this.value = '';
+    } else if (file.size > maxSize) {
+        msg.textContent = 'File too large. Maximum 5 MB allowed.';
+        msg.className = 'form-text text-danger';
+        this.value = '';
+    } else {
+        msg.textContent = '✓ File ready: ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+        msg.className = 'form-text text-success';
+    }
+});
+
+// ─── Form submission gate ─────────────────────────────────────────────────────
+document.getElementById('regForm').addEventListener('submit', function(e) {
+    // Password match
+    var pwd  = document.getElementById('pwd').value;
+    var cpwd = document.getElementById('cpwd').value;
+    if (pwd !== cpwd) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return;
+    }
+
+    // Phone must be verified
+    if (!phoneVerified) {
+        e.preventDefault();
+        document.getElementById('submitBlockMsg').classList.remove('d-none');
+        document.getElementById('phoneInput').focus();
+        return;
+    }
+});
+</script>
+{% endblock %}

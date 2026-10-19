@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Evidence & Progress | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: var(--secondary);">Milestone Evidence</h2>
+            <p class="text-muted mb-0">Project: 2BHK Ground Floor Setup (PRJ-992A) • Stage: Foundation Work</p>
+        </div>
+        <a href="{% url 'roadmap' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Back to Roadmap</a>
+    </div>
+
+    <!-- Worker Upload Section -->
+    {% if user_role == 'WORKER' %}
+    <div class="card border-0 shadow-sm p-4 mb-4 bg-light">
+        <h5 class="fw-bold mb-3"><i class="bi bi-cloud-upload text-primary me-2"></i>Upload New Evidence</h5>
+        <form>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Photo/Video</label>
+                    <input type="file" class="form-control" accept="image/*,video/*" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small">Caption / Description</label>
+                    <input type="text" class="form-control" placeholder="e.g. Completed trenching for north wall" required>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="button" class="btn btn-primary" onclick="alert('Evidence uploaded successfully!');"><i class="bi bi-upload me-1"></i> Submit Evidence</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Gallery -->
+    <h4 class="fw-bold mb-3">Submitted Evidence</h4>
+    <div class="row g-4">
+        
+        <div class="col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius);">
+                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Approved</span>
+                        <small class="text-muted">Oct 18, 10:30 AM</small>
+                    </div>
+                    <p class="mb-0 fw-bold">Trenching for north wall</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-sm-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center" style="height: 200px; border-top-left-radius: var(--radius); border-top-right-radius: var(--radius);">
+                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-warning text-dark">Pending Review</span>
+                        <small class="text-muted">Oct 19, 04:15 PM</small>
+                    </div>
+                    <p class="mb-3 fw-bold">PCC Layout complete</p>
+                    
+                    {% if user_role == 'OWNER' %}
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-success flex-fill" onclick="alert('Approved!')"><i class="bi bi-check-lg"></i> Approve</button>
+                        <button class="btn btn-sm btn-danger flex-fill" onclick="alert('Rejected!')"><i class="bi bi-x-lg"></i> Reject</button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

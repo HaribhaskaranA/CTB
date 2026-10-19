@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Workers | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container-fluid mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0" style="color: var(--secondary);">Find Workers</h2>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm p-4">
+                <h5 class="fw-bold border-bottom pb-3 mb-4">Filters</h5>
+                
+            <form method="GET" action="{% url 'worker_search' %}">
+                <div class="mb-4">
+                    <label class="fw-bold small mb-2">Profession</label>
+                    <select name="profession" class="form-select form-select-sm">
+                        <option value="">All Professions</option>
+                        <option value="MASON" {% if selected_profession == 'MASON' %}selected{% endif %}>Mason</option>
+                        <option value="ELECTRICIAN" {% if selected_profession == 'ELECTRICIAN' %}selected{% endif %}>Electrician</option>
+                        <option value="PLUMBER" {% if selected_profession == 'PLUMBER' %}selected{% endif %}>Plumber</option>
+                        <option value="CARPENTER" {% if selected_profession == 'CARPENTER' %}selected{% endif %}>Carpenter</option>
+                        <option value="PAINTER" {% if selected_profession == 'PAINTER' %}selected{% endif %}>Painter</option>
+                        <option value="WELDER" {% if selected_profession == 'WELDER' %}selected{% endif %}>Welder</option>
+                        <option value="CIVIL_CONTRACTOR" {% if selected_profession == 'CIVIL_CONTRACTOR' %}selected{% endif %}>Civil Contractor</option>
+                        <option value="ARCHITECT" {% if selected_profession == 'ARCHITECT' %}selected{% endif %}>Architect / Designer</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="fw-bold small mb-2">Location/City</label>
+                    <input type="text" name="city" class="form-control form-control-sm" placeholder="e.g. Chennai" value="{{ selected_city|default:'' }}">
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="verOnly" checked disabled>
+                        <label class="form-check-label small fw-bold text-success" for="verOnly">Verified Only <i class="bi bi-shield-check"></i></label>
+                    </div>
+                    <small class="text-muted" style="font-size: 11px;">All search results are guaranteed verified in Supabase.</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                {% if selected_profession or selected_city %}
+                <a href="{% url 'worker_search' %}" class="btn btn-outline-secondary btn-sm w-100 mt-2">Clear Filters</a>
+                {% endif %}
+            </form>
+            </div>
+        </div>
+
+        <!-- Worker Grid -->
+        <div class="col-lg-9">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="workerGrid">
+                {% if workers %}
+                    {% for worker in workers %}
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm position-relative rounded-4">
+                            <div class="card-body p-4 text-center">
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 small">
+                                        <i class="bi bi-shield-check"></i> Verified
+                                    </span>
+                                </div>
+                                
+                                <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold fs-3 mx-auto mb-3" style="width: 80px; height: 80px;">
+                                    {{ worker.full_name|slice:":2"|upper }}
+                                </div>
+                                
+                                <h5 class="fw-bold mb-1 text-dark">{{ worker.full_name }}</h5>
+                                <div class="text-muted small mb-2">ID: {{ worker.user.user_id }}</div>
+                                
+                                <span class="badge bg-primary mb-3">{{ worker.get_profession_display }}</span>
+                                
+                                <div class="d-flex justify-content-center gap-3 mb-3 text-muted small">
+                                    <div><i class="bi bi-star-fill text-warning"></i> {{ worker.overall_rating|default:"5.0" }} ({{ worker.total_reviews|default:"0" }})</div>
+                                    <div><i class="bi bi-briefcase"></i> {{ worker.years_experience }} Yrs</div>
+                                </div>
+                                
+                                <p class="small mb-3 text-muted"><i class="bi bi-geo-alt text-primary"></i> {{ worker.city }}{% if worker.area %}, {{ worker.area }}{% endif %}</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-3 mb-3">
+                                    <span class="small fw-bold">₹ {{ worker.daily_rate|floatformat:0 }}/day</span>
+                                    {% if worker.availability %}
+                                    <span class="text-success small fw-bold"><i class="bi bi-circle-fill small" style="font-size: 8px;"></i> Available</span>
+                                    {% else %}
+                                    <span class="text-secondary small fw-bold">Busy</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'worker_public_profile' worker.pk %}" class="btn btn-outline-secondary btn-sm flex-fill">View Profile</a>
+                                    <a href="{% url 'worker_public_profile' worker.pk %}" class="btn btn-primary btn-sm flex-fill">Request Quote</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 w-100">
+                        <div class="card p-5 text-center border-0 shadow-sm bg-light rounded-4">
+                            <i class="bi bi-person-x fs-1 text-muted mb-3"></i>
+                            <h5 class="fw-bold text-dark">No Verified Workers Found</h5>
+                            <p class="text-muted small mb-0">Only registered workers whose verification has been approved in Supabase appear in search results.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

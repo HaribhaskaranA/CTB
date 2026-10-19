@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}My Passport | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-10">
+            <h2 class="fw-bold mb-3" style="color: var(--secondary);"><i class="bi bi-passport text-primary me-2"></i>Digital Work Passport</h2>
+            
+            <div class="card border-0 shadow-sm p-0 overflow-hidden rounded-4">
+                <div class="bg-primary text-white p-4 position-relative">
+                    <div class="position-absolute end-0 top-0 mt-3 me-3 opacity-25">
+                        <i class="bi bi-fingerprint" style="font-size: 5rem;"></i>
+                    </div>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="bg-white text-primary rounded-circle d-flex justify-content-center align-items-center fw-bold shadow" style="width: 80px; height: 80px; font-size: 2rem; border: 3px solid rgba(255,255,255,0.5);">
+                            {{ profile.full_name|slice:":2"|upper }}
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-1">{{ profile.full_name }}</h2>
+                            <h5 class="mb-2 opacity-75">{{ profile.get_profession_display }}</h5>
+                            <span class="badge bg-light text-dark fs-6 px-3 py-2 shadow-sm border border-light">ID: {{ profile.user.user_id }}</span>
+                            {% if profile.verification_status == 'VERIFIED' %}
+                            <span class="badge bg-success ms-2 fs-6 px-3 py-2 shadow-sm"><i class="bi bi-shield-check"></i> Verified Profile</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark ms-2 fs-6 px-3 py-2 shadow-sm"><i class="bi bi-clock"></i> {{ profile.get_verification_status_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-5">
+                        <div class="col-md-7">
+                            <h5 class="fw-bold text-secondary border-bottom pb-2 mb-3">Professional Summary</h5>
+                            <div class="row mb-4">
+                                <div class="col-6 mb-3">
+                                    <div class="text-muted small">Experience</div>
+                                    <div class="fw-bold fs-5">{{ profile.years_experience }} Years</div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="text-muted small">Completed Projects (Platform)</div>
+                                    <div class="fw-bold fs-5 text-success">{{ profile.completed_projects|default:0 }} <i class="bi bi-check-circle-fill"></i></div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="text-muted small">Daily Rate</div>
+                                    <div class="fw-bold fs-5">₹ {{ profile.daily_rate|floatformat:0 }}/day</div>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <div class="text-muted small">Rating</div>
+                                    <div class="fw-bold fs-5 text-warning">
+                                        <i class="bi bi-star-fill"></i> {% if profile.overall_rating %}{{ profile.overall_rating }}{% else %}New{% endif %} 
+                                        <span class="text-muted fs-6">({{ profile.total_reviews|default:0 }} Reviews)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="fw-bold text-secondary border-bottom pb-2 mb-3">Verified Skills</h5>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                {% if profile.skills %}
+                                    {% for skill in profile.skills %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-dark border px-3 py-2">{{ skill }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted small">No skills added yet.</span>
+                                {% endif %}
+                            </div>
+                            
+                            <h5 class="fw-bold text-secondary border-bottom pb-2 mb-3">Service Areas</h5>
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                {% if profile.service_areas %}
+                                    {% for area in profile.service_areas %}
+                                    <span class="badge bg-primary px-3 py-2"><i class="bi bi-geo-alt"></i> {{ area }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="badge bg-primary px-3 py-2"><i class="bi bi-geo-alt"></i> {{ profile.city }}</span>
+                                {% endif %}
+                            </div>
+
+                            <h5 class="fw-bold text-secondary border-bottom pb-2 mb-3">Completed Milestones</h5>
+                            {% if milestones %}
+                                <ul class="list-group list-group-flush">
+                                    {% for m in milestones %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                        <div>
+                                            <span class="fw-semibold">{{ m.stage_name }}</span>
+                                            <small class="text-muted d-block">{{ m.project.title }}</small>
+                                        </div>
+                                        <span class="badge bg-success"><i class="bi bi-check2"></i> Verified</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted small">No platform milestone completions yet. New projects assigned will build your record here.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-5">
+                            <div class="bg-light p-4 rounded-4 h-100">
+                                <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-award text-primary me-2"></i>Verified Credentials</h5>
+                                <ul class="list-unstyled mb-4">
+                                    {% if certificates %}
+                                        {% for cert in certificates %}
+                                        <li class="mb-3 p-3 bg-white rounded-3 border {% if cert.is_verified %}border-success{% else %}border-warning{% endif %} d-flex align-items-center shadow-sm">
+                                            <i class="bi {% if cert.is_verified %}bi-patch-check-fill text-success{% else %}bi-file-earmark text-warning{% endif %} fs-3 me-3"></i>
+                                            <div>
+                                                <div class="fw-bold">{{ cert.certificate_name }}</div>
+                                                <small class="text-muted">{{ cert.issuing_authority }} • {% if cert.is_verified %}Verified{% else %}Under Review{% endif %}</small>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <li class="p-3 bg-white rounded-3 border d-flex align-items-center shadow-sm mb-3">
+                                            <i class="bi bi-file-earmark-text text-muted fs-3 me-3"></i>
+                                            <div>
+                                                <div class="fw-bold">No Certificates Uploaded</div>
+                                                <small class="text-muted">Upload certificates in Edit Profile</small>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                                
+                                <a href="{% url 'worker_profile' %}" class="btn btn-outline-primary w-100 mt-auto fw-bold"><i class="bi bi-pencil me-2"></i>Edit Profile & Upload Documents</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

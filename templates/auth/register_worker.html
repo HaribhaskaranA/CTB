@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Worker Registration | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card p-4 p-md-5">
+                <h3 class="fw-bold mb-4" style="color: var(--secondary);">Register as Worker / Service Provider</h3>
+                <form method="POST" action="{% url 'register_worker' %}" id="regForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if errors %}
+                    <div class="alert alert-danger mb-4 rounded-3 border-0 shadow-sm">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+                            <h6 class="fw-bold mb-0">Please correct the following:</h6>
+                        </div>
+                        <ul class="mb-0 ps-4 small">
+                            {% for field, error in errors.items %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-4">1. Personal Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="full_name" class="form-control" value="{{ data.full_name|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">+91</span>
+                                <input type="tel" name="phone" class="form-control" pattern="[0-9]{10}" value="{{ data.phone|default:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address (Optional)</label>
+                            <input type="email" name="email" class="form-control" value="{{ data.email|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Preferred Language</label>
+                            <select name="language" class="form-select">
+                                <option value="English" {% if data.language == 'English' %}selected{% endif %}>English</option>
+                                <option value="Tamil" {% if data.language == 'Tamil' %}selected{% endif %}>Tamil</option>
+                                <option value="Telugu" {% if data.language == 'Telugu' %}selected{% endif %}>Telugu</option>
+                                <option value="Hindi" {% if data.language == 'Hindi' %}selected{% endif %}>Hindi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">2. Location</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">State</label>
+                            <select name="state" class="form-select" required>
+                                <option value="">Select State</option>
+                                <option value="TN" {% if data.state == 'TN' %}selected{% endif %}>Tamil Nadu</option>
+                                <option value="KA" {% if data.state == 'KA' %}selected{% endif %}>Karnataka</option>
+                                <option value="AP" {% if data.state == 'AP' %}selected{% endif %}>Andhra Pradesh</option>
+                                <option value="MH" {% if data.state == 'MH' %}selected{% endif %}>Maharashtra</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <input type="text" name="city" class="form-control" value="{{ data.city|default:'' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Area/Locality</label>
+                            <input type="text" name="area" class="form-control" value="{{ data.area|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">3. Professional Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Profession</label>
+                            <select name="profession" class="form-select" required>
+                                <option value="">Select Profession</option>
+                                <option value="Mason" {% if data.profession == 'Mason' %}selected{% endif %}>Mason</option>
+                                <option value="Electrician" {% if data.profession == 'Electrician' %}selected{% endif %}>Electrician</option>
+                                <option value="Plumber" {% if data.profession == 'Plumber' %}selected{% endif %}>Plumber</option>
+                                <option value="Carpenter" {% if data.profession == 'Carpenter' %}selected{% endif %}>Carpenter</option>
+                                <option value="Painter" {% if data.profession == 'Painter' %}selected{% endif %}>Painter</option>
+                                <option value="Architect" {% if data.profession == 'Architect' %}selected{% endif %}>Architect</option>
+                                <option value="Civil Engineer" {% if data.profession == 'Civil Engineer' %}selected{% endif %}>Civil Engineer</option>
+                                <option value="Laborer" {% if data.profession == 'Laborer' %}selected{% endif %}>General Laborer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Years of Experience</label>
+                            <input type="number" name="experience" class="form-control" min="0" value="{{ data.experience|default:'' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Skills (comma separated)</label>
+                            <input type="text" name="skills" class="form-control" placeholder="e.g. Wiring, Pipe fitting, Tile laying" value="{{ data.skills|default:'' }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Service Areas (cities you serve, comma separated)</label>
+                            <input type="text" name="service_areas" class="form-control" placeholder="e.g. Chennai, Kanchipuram" value="{{ data.service_areas|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Daily Rate (₹)</label>
+                            <input type="number" name="daily_rate" class="form-control" min="100" value="{{ data.daily_rate|default:'' }}">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end pb-2">
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" role="switch" name="availability" id="availability" checked>
+                                <label class="form-check-label ms-2 fs-6" for="availability">Currently Available for Work</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Brief Bio (Optional)</label>
+                            <textarea name="bio" class="form-control" rows="3" placeholder="Tell owners about your work...">{{ data.bio|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">4. Documents & Certificates</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Upload certificates, experience letters, or previous work photos (PDF/JPG/PNG, max 5MB each)</label>
+                        <input type="file" name="documents" class="form-control" multiple accept=".pdf,.jpg,.jpeg,.png">
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">5. Identity (Optional)</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Identity Document Type</label>
+                        <select name="id_type" class="form-select">
+                            <option value="">Select Document Type</option>
+                            <option value="Voter ID">Voter ID</option>
+                            <option value="Driving License">Driving License</option>
+                            <option value="PAN Card">PAN Card</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="form-text text-muted mt-2">
+                            We store only the document type, not the document number.
+                        </div>
+                    </div>
+
+                    <h5 class="text-primary border-bottom pb-2 mb-3 mt-5">6. Account Security</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="pwd" class="form-control" minlength="8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" id="cpwd" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Register as Worker / Service Provider</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card p-4 bg-light h-100 border-0 shadow-sm">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-badge text-primary" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mt-2" style="color: var(--secondary);">Verification Process</h4>
+                </div>
+                
+                <div class="alert alert-info border-0 bg-white shadow-sm mb-4">
+                    After registration, our admin team will review your certificates and information. You will receive a <span class="badge bg-success"><i class="bi bi-shield-check"></i> Verified</span> badge once approved, which helps you get hired faster!
+                </div>
+
+                <ul class="list-unstyled mb-4 text-muted">
+                    <li class="mb-3 d-flex"><i class="bi bi-lock-fill text-secondary me-2 mt-1"></i> Privacy First: Phone numbers are only shared after you accept a job.</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-award-fill text-secondary me-2 mt-1"></i> Digital Passport: Build a permanent record of your verified work.</li>
+                    <li class="mb-3 d-flex"><i class="bi bi-star-fill text-warning me-2 mt-1"></i> Ratings: Get rated by owners to boost your profile.</li>
+                </ul>
+
+                <div class="mt-auto text-center">
+                    <p class="text-muted mb-2">Already have an account?</p>
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary w-100 mb-2">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        var pwd = document.getElementById('pwd').value;
+        var cpwd = document.getElementById('cpwd').value;
+        if(pwd !== cpwd) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+        }
+    });
+</script>
+{% endblock %}

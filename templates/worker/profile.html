@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container max-w-4xl mx-auto mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color: var(--secondary);">Edit Profile</h2>
+            <p class="text-muted mb-0">Update your trade skills, daily rates, and service localities.</p>
+        </div>
+        <span class="badge bg-primary px-3 py-2 rounded-pill">ID: {{ profile.user.user_id }}</span>
+    </div>
+    
+    <div class="card border-0 shadow-sm p-4 p-md-5 rounded-4">
+        <form method="POST" action="{% url 'worker_profile' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Basic Information</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">Full Name</label>
+                    <input type="text" class="form-control" name="full_name" value="{{ profile.full_name }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">Profession</label>
+                    <input type="text" class="form-control bg-light" value="{{ profile.get_profession_display }}" readonly disabled>
+                    <small class="text-muted">Profession is tied to your verified trade certification.</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">City / District</label>
+                    <input type="text" class="form-control bg-light" value="{{ profile.city }}" readonly disabled>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">State</label>
+                    <input type="text" class="form-control bg-light" value="{{ profile.get_state_display|default:profile.state }}" readonly disabled>
+                </div>
+            </div>
+
+            <h5 class="fw-bold text-primary mb-4 border-bottom pb-2 mt-4">Professional Details</h5>
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label class="form-label text-muted small fw-bold">Skills (comma separated)</label>
+                    <input type="text" class="form-control" name="skills" value="{{ profile.skills|join:', ' }}" placeholder="e.g. Bricklaying, Plastering, Concrete mixing">
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label text-muted small fw-bold">Service Areas (cities / localities, comma separated)</label>
+                    <input type="text" class="form-control" name="service_areas" value="{{ profile.service_areas|join:', ' }}" placeholder="e.g. Chennai, Tambaram, Kanchipuram">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label text-muted small fw-bold">Daily Rate (₹)</label>
+                    <input type="number" class="form-control" name="daily_rate" value="{{ profile.daily_rate|floatformat:0 }}" min="100">
+                </div>
+                
+                <div class="col-md-6 d-flex align-items-center mt-4">
+                    <div class="form-check form-switch fs-5">
+                        <input class="form-check-input" type="checkbox" role="switch" name="availability" id="availSwitch" value="1" {% if profile.availability %}checked{% endif %}>
+                        <label class="form-check-label ms-2 fs-6 text-dark fw-bold" for="availSwitch">Currently Available for New Projects</label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label text-muted small fw-bold">Brief Bio</label>
+                    <textarea class="form-control" rows="4" name="bio" placeholder="Tell owners about your experience and craftsmanship...">{{ profile.bio }}</textarea>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top text-end">
+                <a href="{% url 'worker_dashboard' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary btn-lg fw-bold px-4">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5" style="max-width: 480px;">
+            <div class="card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-house-door-fill text-primary" style="font-size: 2.5rem;"></i>
+                    <h3 class="fw-bold mt-2" style="color: var(--secondary);">CONNECT TO BUILD</h3>
+                    <p class="text-muted">Login to your account</p>
+                </div>
+
+                <form method="POST" action="{% url 'login' %}" id="loginForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Role</label>
+                        <div class="d-flex gap-3">
+                            <label class="flex-fill">
+                                <input type="radio" name="role" value="OWNER" class="btn-check" {% if not data or data.role == 'OWNER' or data.role == 'owner' %}checked{% endif %}>
+                                <div class="btn btn-outline-secondary w-100 py-3 rounded text-center role-btn">
+                                    <i class="bi bi-house fs-4 d-block mb-1"></i>
+                                    House Owner
+                                </div>
+                            </label>
+                            <label class="flex-fill">
+                                <input type="radio" name="role" value="WORKER" class="btn-check" {% if data and data.role == 'WORKER' or data.role == 'worker' %}checked{% endif %}>
+                                <div class="btn btn-outline-secondary w-100 py-3 rounded text-center role-btn">
+                                    <i class="bi bi-person-workspace fs-4 d-block mb-1"></i>
+                                    Worker
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 position-relative">
+                        <label for="user_id" class="form-label fw-bold">User ID</label>
+                        <i class="bi bi-info-circle text-muted ms-1" data-bs-toggle="tooltip" title="Owner ID looks like: HO-TN-8F42K. Worker ID looks like: WK-TN-3A91P."></i>
+                        <input type="text" class="form-control form-control-lg" id="user_id" name="user_id" value="{% if data %}{{ data.user_id|default:'' }}{% endif %}" placeholder="e.g., HO-TN-8F42K" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="phone" class="form-label fw-bold">Phone Number</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light">+91</span>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{% if data %}{{ data.phone|default:'' }}{% endif %}" pattern="[0-9]{10}" placeholder="10-digit number" required>
+                        </div>
+                    </div>
+
+                    {% if unverified_worker %}
+                    <div class="alert alert-warning p-3 mb-4 text-start rounded-3 shadow-sm">
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-clock-history fs-5 text-warning flex-shrink-0"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Verification Required</h6>
+                                <p class="mb-2 small">{{ error }}</p>
+                                {% if tracking_id %}
+                                <a href="{% url 'worker_track_status' %}?tracking_id={{ tracking_id }}" class="btn btn-warning btn-sm fw-bold text-dark">
+                                    <i class="bi bi-geo-alt"></i> Track Status ({{ tracking_id }})
+                                </a>
+                                {% else %}
+                                <a href="{% url 'worker_track_status' %}" class="btn btn-warning btn-sm fw-bold text-dark">
+                                    <i class="bi bi-geo-alt"></i> Track Application Status
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% elif error %}
+                    <div class="alert alert-danger p-2 mb-4 text-center">
+                        <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">Validate & Send OTP</button>
+
+                    <div class="text-center text-muted">
+                        Don't have an account? <br>
+                        <a href="{% url 'register_owner' %}" class="text-primary text-decoration-none fw-bold">Register as Owner</a> | 
+                        <a href="{% url 'register_worker' %}" class="text-primary text-decoration-none fw-bold">Register as Worker</a>
+                    </div>
+
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <a href="{% url 'worker_track_status' %}" class="text-decoration-none small text-secondary fw-semibold">
+                            <i class="bi bi-search me-1"></i> Worker? Track Application Status
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .role-btn { border-color: var(--border); transition: all 0.2s; }
+    .btn-check:checked + .role-btn {
+        border-color: var(--primary);
+        background-color: rgba(232, 99, 41, 0.05);
+        color: var(--primary);
+        border-width: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock %}

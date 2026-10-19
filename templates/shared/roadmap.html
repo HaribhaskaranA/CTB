@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}Roadmap | Connect To Build{% endblock %}
+
+{% block content %}
+<div class="container-fluid mb-5">
+    {% if project %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div>
+            <h2 class="fw-bold mb-0" style="color: var(--secondary);">Project Roadmap</h2>
+            <p class="text-muted mb-0">{{ project.title }} • {{ project.city }}{% if project.state %}, {{ project.state }}{% endif %}</p>
+        </div>
+        <div>
+            <span class="badge bg-primary px-3 py-2 rounded-pill fs-6">{{ project.project_id }}</span>
+            <span class="badge {% if project.status == 'ACTIVE' %}bg-success{% else %}bg-secondary{% endif %} px-3 py-2 rounded-pill fs-6">{{ project.get_status_display }}</span>
+        </div>
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="card p-3 border-0 shadow-sm mb-4 mt-3">
+        <div class="d-flex justify-content-between text-muted small fw-bold mb-1">
+            <span>Overall Roadmap Progress</span>
+            <span>{{ project.overall_progress }}%</span>
+        </div>
+        <div class="progress" style="height: 12px; border-radius: 6px;">
+            <div class="progress-bar bg-success" style="width: {{ project.overall_progress }}%"></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Panel: Timeline -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <h5 class="fw-bold mb-3 border-bottom pb-2">Stages ({{ milestones|length }})</h5>
+                
+                <div class="roadmap-timeline position-relative ps-4 border-start border-2 ms-2" style="max-height: 600px; overflow-y: auto;">
+                    {% for m in milestones %}
+                    <div class="timeline-item mb-3 position-relative milestone-node cursor-pointer" 
+                         onclick="selectMilestone({{ m.order }}, '{{ m.stage_name|escapejs }}', '{{ m.status }}', '{{ m.progress_percent }}', '{% if m.assigned_worker %}{{ m.assigned_worker.full_name|escapejs }}{% endif %}', '{% if m.assigned_worker %}{{ m.assigned_worker.get_profession_display|escapejs }}{% endif %}', '{% if m.assigned_worker %}{{ m.assigned_worker.overall_rating|default:'New' }}{% endif %}', '{{ m.payment_status }}', '{{ m.start_date|default:'' }}', '{{ m.notes|escapejs }}')"
+                         id="node-{{ m.order }}">
+                        
+                        {% if m.status == 'COMPLETED' %}
+                        <div class="timeline-icon bg-success text-white position-absolute rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 28px; height: 28px; left: -30px; top: 2px;">
+                            <i class="bi bi-check fs-6"></i>
+                        </div>
+                        <div class="card bg-light border-0 p-2">
+                            <h6 class="fw-bold text-success mb-1 small">{{ m.order }}. {{ m.stage_name }}</h6>
+                            <span class="badge bg-success" style="width: fit-content;">Completed</span>
+                        </div>
+                        {% elif m.status == 'IN_PROGRESS' %}
+                        <div class="timeline-icon bg-primary text-white position-absolute rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 28px; height: 28px; left: -30px; top: 2px; animation: pulse 2s infinite;">
+                            {{ m.order }}
+                        </div>
+                        <div class="card border-primary border-2 shadow-sm p-2">
+                            <h6 class="fw-bold text-primary mb-1 small">{{ m.order }}. {{ m.stage_name }}</h6>
+                            <span class="badge bg-warning text-dark" style="width: fit-content;">In Progress ({{ m.progress_percent }}%)</span>
+                        </div>
+                        {% else %}
+                        <div class="timeline-icon bg-white border border-secondary text-secondary position-absolute rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; left: -30px; top: 2px; font-size: 12px;">
+                            {{ m.order }}
+                        </div>
+                        <div class="card bg-transparent border p-2 opacity-75">
+                            <h6 class="fw-bold text-secondary mb-1 small">{{ m.order }}. {{ m.stage_name }}</h6>
+                            <span class="badge bg-secondary" style="width: fit-content;">Pending</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small">No milestones defined yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Active Milestone Details -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h4 class="fw-bold text-primary mb-1" id="detail-stage-name">
+                            {% if milestones %}{{ milestones.0.stage_name }}{% else %}Planning{% endif %}
+                        </h4>
+                        <span class="badge bg-warning text-dark" id="detail-status">
+                            {% if milestones %}{{ milestones.0.get_status_display }}{% else %}Pending{% endif %}
+                        </span>
+                        <span class="text-muted small ms-2" id="detail-date">
+                            <i class="bi bi-calendar3"></i> Stage Order: <span id="detail-order">{% if milestones %}{{ milestones.0.order }}{% else %}1{% endif %}</span>
+                        </span>
+                    </div>
+                    {% if user_role == 'OWNER' %}
+                    <a href="{% url 'project_worker_search' project.pk %}" class="btn btn-outline-primary btn-sm fw-semibold">
+                        <i class="bi bi-person-plus me-1"></i> Find Worker for Stage
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="card bg-light border-0 p-3 mb-4 rounded-3" id="worker-card-box">
+                    <h6 class="fw-bold text-secondary mb-3">Assigned Worker</h6>
+                    <div class="d-flex align-items-center gap-3" id="worker-assigned-content">
+                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold fs-4" style="width: 50px; height: 50px;" id="worker-avatar">
+                            {% if milestones.0.assigned_worker %}{{ milestones.0.assigned_worker.full_name|slice:":1"|upper }}{% else %}<i class="bi bi-person"></i>{% endif %}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1" id="worker-name">
+                                {% if milestones.0.assigned_worker %}{{ milestones.0.assigned_worker.full_name }}{% else %}No worker assigned yet{% endif %}
+                            </h6>
+                            <span class="badge bg-info text-dark me-1" id="worker-profession">
+                                {% if milestones.0.assigned_worker %}{{ milestones.0.assigned_worker.get_profession_display }}{% else %}Open for Quotation{% endif %}
+                            </span>
+                            <span class="text-muted small" id="worker-rating">
+                                <i class="bi bi-star-fill text-warning"></i> {% if milestones.0.assigned_worker %}{{ milestones.0.assigned_worker.overall_rating|default:"New" }}{% else %}—{% endif %}
+                            </span>
+                        </div>
+                        <div class="ms-auto text-end">
+                            <div class="small fw-bold text-muted">Payment Status</div>
+                            <span class="badge bg-secondary" id="payment-status">
+                                {% if milestones %}{{ milestones.0.get_payment_status_display }}{% else %}Pending{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold text-secondary mb-2">Stage Completion Progress</h6>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between text-muted small mb-1">
+                        <span>Progress</span>
+                        <span class="fw-bold text-primary" id="progress-text">{% if milestones %}{{ milestones.0.progress_percent }}{% else %}0{% endif %}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary" id="progress-bar" style="width: {% if milestones %}{{ milestones.0.progress_percent }}{% else %}0{% endif %}%;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-secondary mb-0">Milestone Notes & Guidelines</h6>
+                </div>
+                <div class="p-3 bg-light rounded-3 mb-4 text-muted small" id="detail-notes">
+                    {% if milestones.0.notes %}
+                    {{ milestones.0.notes }}
+                    {% else %}
+                    Follow certified quality standards and submit photo evidence upon completing each task of this stage.
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-info border-0 mt-auto mb-0">
+                    <i class="bi bi-info-circle-fill me-1"></i> As workers complete stage tasks and upload evidence, progress is automatically tracked on this roadmap.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-map text-muted" style="font-size: 4rem;"></i>
+        </div>
+        <h4 class="fw-bold" style="color: var(--secondary);">No Active Project Found</h4>
+        <p class="text-muted mb-4">Create your construction requirements to generate an automated 12-stage roadmap.</p>
+        {% if user_role == 'OWNER' %}
+        <a href="{% url 'project_new' %}" class="btn btn-primary btn-lg fw-bold">
+            <i class="bi bi-plus-circle me-2"></i>Create New Project
+        </a>
+        {% else %}
+        <a href="{% url 'worker_projects' %}" class="btn btn-primary btn-lg fw-bold">
+            <i class="bi bi-search me-2"></i>Explore Projects
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(232, 99, 41, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(232, 99, 41, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(232, 99, 41, 0); }
+    }
+    .cursor-pointer { cursor: pointer; transition: transform 0.15s ease; }
+    .cursor-pointer:hover { transform: translateX(3px); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectMilestone(order, name, status, progress, workerName, workerProf, workerRating, payStatus, startDate, notes) {
+    document.getElementById('detail-stage-name').textContent = order + '. ' + name;
+    document.getElementById('detail-order').textContent = order;
+    
+    const statusBadge = document.getElementById('detail-status');
+    statusBadge.textContent = status;
+    if(status === 'COMPLETED') {
+        statusBadge.className = 'badge bg-success';
+    } else if(status === 'IN_PROGRESS') {
+        statusBadge.className = 'badge bg-warning text-dark';
+    } else {
+        statusBadge.className = 'badge bg-secondary';
+    }
+
+    const progVal = parseInt(progress) || 0;
+    document.getElementById('progress-text').textContent = progVal + '%';
+    document.getElementById('progress-bar').style.width = progVal + '%';
+
+    const wName = document.getElementById('worker-name');
+    const wProf = document.getElementById('worker-profession');
+    const wRating = document.getElementById('worker-rating');
+    const wAvatar = document.getElementById('worker-avatar');
+
+    if(workerName && workerName.trim()) {
+        wName.textContent = workerName;
+        wProf.textContent = workerProf || 'Worker';
+        wProf.className = 'badge bg-primary me-1';
+        wRating.innerHTML = '<i class="bi bi-star-fill text-warning"></i> ' + (workerRating || 'New');
+        wAvatar.textContent = workerName.trim().charAt(0).toUpperCase();
+    } else {
+        wName.textContent = 'No worker assigned yet';
+        wProf.textContent = 'Open for Quotation';
+        wProf.className = 'badge bg-info text-dark me-1';
+        wRating.innerHTML = '<i class="bi bi-star-fill text-muted"></i> —';
+        wAvatar.innerHTML = '<i class="bi bi-person"></i>';
+    }
+
+    document.getElementById('payment-status').textContent = payStatus || 'Pending';
+    if(notes && notes.trim()) {
+        document.getElementById('detail-notes').textContent = notes;
+    } else {
+        document.getElementById('detail-notes').textContent = 'Follow certified quality standards and submit photo evidence upon completing each task of this stage.';
+    }
+}
+</script>
+{% endblock %}
